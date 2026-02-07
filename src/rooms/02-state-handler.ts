@@ -2,16 +2,12 @@ import { Room, Client } from "colyseus";
 import { Schema, type, MapSchema } from "@colyseus/schema";
 
 export class Player extends Schema {
-    @type("number")
-    x = Math.floor(Math.random() * 400);
-
-    @type("number")
-    y = Math.floor(Math.random() * 400);
+    @type("number") x = Math.floor(Math.random() * 400);
+    @type("number") y = Math.floor(Math.random() * 400);
 }
 
 export class State extends Schema {
-    @type({ map: Player })
-    players = new MapSchema<Player>();
+    @type({ map: Player }) players = new MapSchema<Player>();
 
     something = "This attribute won't be sent to the client-side";
 
@@ -56,7 +52,7 @@ export class StateHandlerRoom extends Room {
         this.state.createPlayer(client.sessionId);
     }
 
-    onLeave (client) {
+    onLeave (client, code?: number) {
         console.log(client.sessionId, "left!");
         this.state.removePlayer(client.sessionId);
     }

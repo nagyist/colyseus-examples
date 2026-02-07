@@ -1,4 +1,4 @@
-import { Room, Client } from "colyseus";
+import { Room, Client, CloseCode } from "colyseus";
 
 export class ReconnectionRoom extends Room {
     onCreate (options: any) {
@@ -8,27 +8,19 @@ export class ReconnectionRoom extends Room {
         client.send("status", "Welcome!");
     }
 
-    async onLeave (client: Client, consented?: boolean) {
-        console.log(client.sessionId, "left", { consented });
+    onDrop(client: Client, code: number) {
+        console.log(client.sessionId, "Dropped!");
+        this.allowReconnection(client, 10);
+    }
 
-        try {
-            if (consented) {
-                /*
-                 * Optional:
-                 * you may want to allow reconnection if the client manually closed the connection.
-                 */
-                throw new Error("left_manually");
-            }
+    onReconnect(client: Client) {
+        console.log(client.sessionId, "Reconnected!");
+        client.send("status", "Welcome back!");
+    }
 
-            await this.allowReconnection(client, 10);
-            console.log("Reconnected!");
-
-            client.send("status", "Welcome back!");
-
-        } catch (e) {
-            console.log(e);
-
-        }
+    async onLeave (client: Client, code?: number) {
+        const consented = code === CloseCode.CONSENTED;
+        console.log(client.sessionId, "Left", { consented });
     }
 
     onDispose () {
