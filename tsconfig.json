@@ -1,21 +1,19 @@
 {
     "compilerOptions": {
-        "outDir": "build",
-        "module": "commonjs",
-        "lib": ["es6"],
-        "target": "es2016",
-        "declaration": true,
-        "noImplicitAny": false,
-        "experimentalDecorators": true,
-        "sourceMap": false,
-        "esModuleInterop": true,
-        "strict": true,
-        "allowJs": true,
-        "strictNullChecks": false,
-        "skipLibCheck": true,
-        "forceConsistentCasingInFileNames": true
+      "outDir": "build",
+      "target": "ESNext",
+      "module": "NodeNext",
+      "moduleResolution": "NodeNext",
+      "strict": true,
+      "allowJs": true,
+      "strictNullChecks": false,
+      "esModuleInterop": true,
+      "experimentalDecorators": true,
+      "skipLibCheck": true,
+      "forceConsistentCasingInFileNames": true,
+      "useDefineForClassFields": false
     },
     "include": [
-      "src"
+      "src",
     ]
-}
+  }

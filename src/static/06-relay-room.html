@@ -7,8 +7,9 @@
       body { font-family: Tahoma, Geneva, sans-serif; }
     </style>
 
-    <!-- colyseus.js client -->
-    <script type="text/javascript" src="https://unpkg.com/colyseus.js@^0.16.0/dist/colyseus.js"></script>
+    <!-- include @colyseus/sdk -->
+    <script type="text/javascript" src="https://unpkg.com/@colyseus/sdk@^0.17.0/dist/colyseus.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/@colyseus/sdk@^0.17.0/dist/debug.js"></script>
 
     <style type="text/css">
       .player {
@@ -52,7 +53,7 @@
         var host = window.document.location.host.replace(/:.*/, '');
 
         var client = new Colyseus.Client(location.protocol.replace("http", "ws") + "//" + host + (location.port ? ':' + location.port : ''));
-        var room;
+        var relay_room;
 
         var colors = ['red', 'green', 'yellow', 'blue', 'cyan', 'magenta'];
         var players = {};
@@ -60,17 +61,19 @@
         function join() {
             client.joinOrCreate("relay", {
                 name: document.getElementById('username').value
-            }).then(room_instance => {
-                room = room_instance
+            }).then(room => {
+                relay_room = room;
 
-                room.onLeave(() => console.log("Bye, bye."));
+                relay_room.onLeave(() => console.log("Bye, bye."));
 
-                room.onMessage('move', ([sessionId, movement]) => {
+                relay_room.onMessage('move', ([sessionId, movement]) => {
                     local_move(sessionId, movement);
                 });
 
+                var callbacks = Colyseus.Callbacks.get(relay_room);
+
                 // listen to patches coming from the server
-                room.state.players.onAdd(function (player, sessionId) {
+                callbacks.onAdd("players", (player, sessionId) => {
                     var dom = document.createElement("div");
                     dom.className = "player";
                     dom.style.left = "0px";
@@ -82,7 +85,7 @@
                     document.body.appendChild(dom);
                 });
 
-                room.state.players.onRemove(function (player, sessionId) {
+                callbacks.onRemove("players", (player, sessionId) => {
                     document.body.removeChild(players[sessionId]);
                     delete players[sessionId];
                 });
@@ -106,8 +109,8 @@
         }
 
         function leave() {
-            if (room) {
-                room.leave();
+            if (relay_room) {
+                relay_room.leave();
             }
         }
 
@@ -125,36 +128,36 @@
             var movement = { y: -10 };
 
             // move locally instantly
-            local_move(room.sessionId, movement);
+            local_move(relay_room.sessionId, movement);
 
-            room.send("move", movement);
+            relay_room.send("move", movement);
         }
 
         function right () {
             var movement = { x: 10 };
 
             // move locally instantly
-            local_move(room.sessionId, movement);
+            local_move(relay_room.sessionId, movement);
 
-            room.send("move", movement);
+            relay_room.send("move", movement);
         }
 
         function down () {
             var movement = { y: 10 };
 
             // move locally instantly
-            local_move(room.sessionId, movement);
+            local_move(relay_room.sessionId, movement);
 
-            room.send("move", movement);
+            relay_room.send("move", movement);
         }
 
         function left () {
             var movement = { x: -10 };
 
             // move locally instantly
-            local_move(room.sessionId, movement);
+            local_move(relay_room.sessionId, movement);
 
-            room.send("move", movement);
+            relay_room.send("move", movement);
         }
 
     </script>
